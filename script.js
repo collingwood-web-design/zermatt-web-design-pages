@@ -1,0 +1,422 @@
+(() => {
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  /* Mobile nav */
+  const toggle = document.querySelector(".nav-toggle");
+  const nav = document.querySelector(".site-nav");
+  if (toggle && nav) {
+    toggle.addEventListener("click", () => {
+      const open = nav.classList.toggle("is-open");
+      toggle.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    nav.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => {
+        nav.classList.remove("is-open");
+        toggle.setAttribute("aria-expanded", "false");
+      });
+    });
+  }
+
+  /* Service expand */
+  document.querySelectorAll("[data-service-toggle]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const card = btn.closest(".service-card");
+      if (!card) return;
+      card.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", card.classList.contains("is-open") ? "true" : "false");
+    });
+  });
+
+  /* Client logo marquee — seamless continuous loop */
+  const clientCarousel = document.querySelector(".client-carousel");
+  const clientTrack = document.querySelector(".client-track");
+  const clientGroup = clientTrack?.querySelector(".client-group");
+  if (clientCarousel && clientTrack && clientGroup && !reduceMotion) {
+    let offset = 0;
+    let paused = false;
+    const speed = 0.55; /* px per frame at ~60fps */
+
+    clientCarousel.addEventListener("mouseenter", () => { paused = true; });
+    clientCarousel.addEventListener("mouseleave", () => { paused = false; });
+    clientCarousel.addEventListener("focusin", () => { paused = true; });
+    clientCarousel.addEventListener("focusout", () => { paused = false; });
+
+    const tick = () => {
+      if (!paused) {
+        offset += speed;
+        const loopWidth = clientGroup.offsetWidth;
+        if (loopWidth > 0 && offset >= loopWidth) offset -= loopWidth;
+        clientTrack.style.transform = `translate3d(${-offset}px, 0, 0)`;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  }
+
+  /* Year in copyright */
+  document.querySelectorAll("[data-year]").forEach((el) => {
+    el.textContent = String(new Date().getFullYear());
+  });
+
+  /* Animated section rules (draw + shimmer) */
+  const rules = document.querySelectorAll("[data-section-rule]");
+  if (rules.length) {
+    const reveal = (el) => el.classList.add("is-in");
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      rules.forEach(reveal);
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            reveal(entry.target);
+            io.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.4 }
+      );
+      rules.forEach((rule) => io.observe(rule));
+    }
+  }
+
+  /* Staggered list reveal */
+  const revealLists = document.querySelectorAll("[data-reveal-list]");
+  if (revealLists.length) {
+    const reveal = (el) => el.classList.add("is-in");
+    if (reduceMotion || !("IntersectionObserver" in window)) {
+      revealLists.forEach(reveal);
+    } else {
+      const io = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            reveal(entry.target);
+            io.unobserve(entry.target);
+          });
+        },
+        { threshold: 0.35 }
+      );
+      revealLists.forEach((list) => io.observe(list));
+    }
+  }
+
+  /* Graphics logo mosaic — fade in as each asset arrives */
+  document.querySelectorAll(".gfx-logo-grid img").forEach((img) => {
+    const mark = () => img.classList.add("is-loaded");
+    if (img.complete && img.naturalWidth > 0) mark();
+    else {
+      img.addEventListener("load", mark, { once: true });
+      img.addEventListener("error", mark, { once: true });
+    }
+  });
+  /* Back to top */
+  const topBtn = document.createElement("button");
+  topBtn.type = "button";
+  topBtn.className = "back-to-top";
+  const uiLang = (document.documentElement.lang || "en").slice(0, 2);
+  const uiCopy = {
+    de: {
+      back: "Nach oben",
+      cookieLabel: "Hinweis zu Cookies",
+      cookie: 'Wir verwenden Cookies, damit die Website reibungslos läuft. Details stehen in der <a href="privacy">Datenschutzerklärung</a>.',
+      got: "Verstanden"
+    },
+    fr: {
+      back: "Haut de page",
+      cookieLabel: "Avis sur les cookies",
+      cookie: 'Nous utilisons des cookies pour que le site fonctionne bien. Consultez la <a href="privacy">politique de confidentialité</a>.',
+      got: "Compris"
+    }
+  };
+  const ui = uiCopy[uiLang] || {
+    back: "Back to top",
+    cookieLabel: "Cookie notice",
+    cookie: 'We use cookies to keep the site running smoothly. See our <a href="privacy">Privacy Policy</a> for details.',
+    got: "Got it"
+  };
+  topBtn.setAttribute("aria-label", ui.back);
+  topBtn.innerHTML = '<span class="back-to-top__arrow" aria-hidden="true"></span>';
+  document.body.appendChild(topBtn);
+
+  const toggleTopBtn = () => {
+    topBtn.classList.toggle("is-visible", window.scrollY > 420);
+  };
+  toggleTopBtn();
+  window.addEventListener("scroll", toggleTopBtn, { passive: true });
+  topBtn.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+  });
+
+  /* Cookie banner */
+  const COOKIE_KEY = "zwd-cookie-consent";
+  if (!localStorage.getItem(COOKIE_KEY)) {
+    const banner = document.createElement("div");
+    banner.className = "cookie-banner";
+    banner.setAttribute("role", "dialog");
+    banner.setAttribute("aria-label", ui.cookieLabel);
+    banner.innerHTML = `
+      <div class="cookie-banner-inner">
+        <p>${ui.cookie}</p>
+        <button type="button" class="btn btn-fill-red cookie-banner-accept">${ui.got}</button>
+      </div>
+    `;
+    document.body.appendChild(banner);
+    requestAnimationFrame(() => banner.classList.add("is-visible"));
+    banner.querySelector(".cookie-banner-accept").addEventListener("click", () => {
+      localStorage.setItem(COOKIE_KEY, "1");
+      banner.classList.remove("is-visible");
+      window.setTimeout(() => banner.remove(), 320);
+    });
+  }
+  /* Drifting node network over the hero image (SEO page) */
+  const heroNet = document.querySelector(".hero-net");
+  if (heroNet && !reduceMotion) {
+    const ctx = heroNet.getContext("2d");
+    const MAX_DIST = 160;
+    let w = 0;
+    let h = 0;
+    let nodes = [];
+    let running = false;
+    let frame = 0;
+
+    const makeNode = () => ({
+      x: Math.random() * w,
+      y: Math.random() * h,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      phase: Math.random() * Math.PI * 2,
+    });
+
+    /* Resizes keep existing nodes (scaled) so the mobile address bar doesn't reshuffle them */
+    const setup = () => {
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = heroNet.getBoundingClientRect();
+      if (!rect.width || !rect.height) return;
+      const sx = w ? rect.width / w : 1;
+      const sy = h ? rect.height / h : 1;
+      w = rect.width;
+      h = rect.height;
+      heroNet.width = Math.round(w * dpr);
+      heroNet.height = Math.round(h * dpr);
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      nodes.forEach((a) => {
+        a.x *= sx;
+        a.y *= sy;
+      });
+      const count = Math.round(Math.min(70, Math.max(20, (w * h) / 21000)));
+      while (nodes.length < count) nodes.push(makeNode());
+      nodes.length = count;
+    };
+
+    const draw = (now = 0) => {
+      const t = now / 1000;
+      const n = nodes.length;
+      const near = [];
+      const edges = [];
+
+      ctx.clearRect(0, 0, w, h);
+
+      for (let i = 0; i < n; i++) {
+        const a = nodes[i];
+        a.x += a.vx;
+        a.y += a.vy;
+        if (a.x < 0 || a.x > w) a.vx *= -1;
+        if (a.y < 0 || a.y > h) a.vy *= -1;
+        near[i] = {};
+      }
+
+      for (let i = 0; i < n; i++) {
+        for (let j = i + 1; j < n; j++) {
+          const dist = Math.hypot(nodes[i].x - nodes[j].x, nodes[i].y - nodes[j].y);
+          if (dist < MAX_DIST) {
+            near[i][j] = dist;
+            edges.push([i, j, dist]);
+          }
+        }
+      }
+
+      for (const [i, j, d] of edges) {
+        for (let k = j + 1; k < n; k++) {
+          if (near[i][k] === undefined || near[j][k] === undefined) continue;
+          const closeness = 1 - (d + near[i][k] + near[j][k]) / (3 * MAX_DIST);
+          ctx.fillStyle = `rgba(230, 60, 40, ${(0.07 * closeness).toFixed(3)})`;
+          ctx.beginPath();
+          ctx.moveTo(nodes[i].x, nodes[i].y);
+          ctx.lineTo(nodes[j].x, nodes[j].y);
+          ctx.lineTo(nodes[k].x, nodes[k].y);
+          ctx.closePath();
+          ctx.fill();
+        }
+      }
+
+      ctx.lineWidth = 1;
+      for (const [i, j, d] of edges) {
+        ctx.strokeStyle = `rgba(255, 145, 115, ${(0.45 * (1 - d / MAX_DIST)).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.moveTo(nodes[i].x, nodes[i].y);
+        ctx.lineTo(nodes[j].x, nodes[j].y);
+        ctx.stroke();
+      }
+
+      for (const a of nodes) {
+        const pulse = 0.5 + 0.5 * Math.sin(t * 1.6 + a.phase);
+        ctx.fillStyle = `rgba(255, 150, 120, ${(0.2 * pulse).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 2 + pulse * 2.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = "rgba(255, 225, 210, 0.9)";
+        ctx.beginPath();
+        ctx.arc(a.x, a.y, 1.4, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      if (running) frame = requestAnimationFrame(draw);
+    };
+
+    const start = () => {
+      setup();
+      heroNet.classList.add("is-running");
+      if ("ResizeObserver" in window) new ResizeObserver(setup).observe(heroNet);
+      else window.addEventListener("resize", setup);
+      const play = (visible) => {
+        if (visible && !running) {
+          running = true;
+          frame = requestAnimationFrame(draw);
+        } else if (!visible && running) {
+          running = false;
+          cancelAnimationFrame(frame);
+        }
+      };
+      if ("IntersectionObserver" in window) {
+        new IntersectionObserver((entries) => play(entries[0].isIntersecting)).observe(heroNet);
+      } else {
+        play(true);
+      }
+    };
+
+    if (document.readyState === "complete") start();
+    else window.addEventListener("load", start, { once: true });
+  }
+
+  /* Load looping videos only when they near the screen */
+  const lazyVideos = document.querySelectorAll("video[data-src]");
+  if (lazyVideos.length) {
+    const startVideo = (video) => {
+      video.src = video.dataset.src;
+      video.removeAttribute("data-src");
+    };
+    if (!("IntersectionObserver" in window)) {
+      lazyVideos.forEach(startVideo);
+    } else {
+      const videoObserver = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (!entry.isIntersecting) return;
+            startVideo(entry.target);
+            videoObserver.unobserve(entry.target);
+          });
+        },
+        { rootMargin: "400px 0px" }
+      );
+      lazyVideos.forEach((video) => videoObserver.observe(video));
+    }
+  }
+
+  /* Case study letter lightbox */
+  const lightbox = document.getElementById("case-study-lightbox");
+  const lightboxImg = lightbox?.querySelector(".case-study-lightbox-img");
+  if (lightbox && lightboxImg) {
+    document.querySelectorAll("[data-lightbox]").forEach((trigger) => {
+      trigger.addEventListener("click", () => {
+        lightboxImg.src = trigger.getAttribute("data-lightbox-src") || "";
+        lightboxImg.alt = trigger.getAttribute("data-lightbox-alt") || "";
+        lightbox.showModal();
+      });
+    });
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) lightbox.close();
+    });
+  }
+
+  /* Contact form thank-you pop-up */
+  const contactForm = document.getElementById("contact-form");
+  const contactThanks = document.getElementById("contact-thanks");
+  /* The form server strips anything link-like, so send the website as a bare, unclickable domain (example[.]com) */
+  const websiteField = contactForm?.querySelector('[name="Website URL"]');
+  if (websiteField) {
+    const toPlainDomain = (raw) =>
+      raw
+        .trim()
+        .replace(/^[a-z][a-z0-9+.-]*:\/\//i, "")
+        .split(/[/?#\s]/)[0]
+        .replace(/:\d+$/, "")
+        .replace(/^www\./i, "")
+        .toLowerCase()
+        .replace(/\./g, "[.]");
+
+    document.addEventListener(
+      "submit",
+      (event) => {
+        if (event.target !== contactForm) return;
+        const typed = websiteField.value;
+        websiteField.value = toPlainDomain(typed);
+        window.setTimeout(() => {
+          if (websiteField.value) websiteField.value = typed;
+        }, 0);
+      },
+      true
+    );
+  }
+
+  if (contactForm && contactThanks) {
+    contactForm.addEventListener("cwd-contact:success", () => {
+      const status = contactForm.querySelector("[data-cwd-contact-status]");
+      if (status) status.textContent = "";
+      contactThanks.showModal();
+    });
+    contactThanks.querySelectorAll("[data-close-thanks]").forEach((btn) => {
+      btn.addEventListener("click", () => contactThanks.close());
+    });
+    contactThanks.addEventListener("click", (event) => {
+      if (event.target !== contactThanks) return;
+      const r = contactThanks.getBoundingClientRect();
+      const inside = event.clientX >= r.left && event.clientX <= r.right && event.clientY >= r.top && event.clientY <= r.bottom;
+      if (!inside) contactThanks.close();
+    });
+  }
+
+  /* Pulsing tip / note panels */
+  const closePulseTip = (tip) => {
+    const btn = tip.querySelector(".wd-pulse-tip__btn");
+    const panel = tip.querySelector(".wd-pulse-tip__panel");
+    if (!btn || !panel) return;
+    btn.setAttribute("aria-expanded", "false");
+    panel.hidden = true;
+  };
+
+  document.querySelectorAll(".wd-pulse-tip").forEach((tip) => {
+    const btn = tip.querySelector(".wd-pulse-tip__btn");
+    const panel = tip.querySelector(".wd-pulse-tip__panel");
+    if (!btn || !panel) return;
+
+    btn.addEventListener("click", (event) => {
+      event.stopPropagation();
+      const open = btn.getAttribute("aria-expanded") === "true";
+      document.querySelectorAll(".wd-pulse-tip").forEach((other) => {
+        if (other !== tip) closePulseTip(other);
+      });
+      btn.setAttribute("aria-expanded", open ? "false" : "true");
+      panel.hidden = open;
+    });
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest(".wd-pulse-tip")) return;
+    document.querySelectorAll(".wd-pulse-tip").forEach(closePulseTip);
+  });
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key !== "Escape") return;
+    document.querySelectorAll(".wd-pulse-tip").forEach(closePulseTip);
+  });
+})();
