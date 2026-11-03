@@ -2406,22 +2406,25 @@ a.service-more .service-more-arrow {
   overflow: hidden;
 }
 
+/* Match logo grid: 4 columns; head row = 2+2 cells, same height as one logo tile */
 .gfx-apps-head {
   display: grid;
-  grid-template-columns: minmax(14rem, 0.9fr) minmax(0, 1.1fr);
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   align-items: stretch;
   width: 100%;
   overflow: hidden;
 }
 
 .gfx-apps-intro {
+  grid-column: span 2;
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: clamp(2.5rem, 5vw, 4.5rem) clamp(1.25rem, 3vw, 2.5rem);
+  padding: clamp(1.25rem, 3vw, 2.5rem) clamp(1.15rem, 2.5vw, 2rem);
   width: 100%;
   min-width: 0;
-  min-height: 18rem;
+  min-height: 0;
+  aspect-ratio: 2 / 1;
   box-sizing: border-box;
   background: #0a0a0a;
   position: relative;
@@ -2429,16 +2432,15 @@ a.service-more .service-more-arrow {
 }
 
 .gfx-apps-feature {
+  grid-column: span 2;
   margin: 0;
   padding: 0;
   width: 100%;
   min-width: 0;
   max-width: 100%;
-  min-height: 100%;
-  height: 100%;
+  aspect-ratio: 2 / 1;
   overflow: hidden;
   background: #0a0a0a;
-  align-self: stretch;
   position: relative;
 }
 
@@ -2457,13 +2459,10 @@ a.service-more .service-more-arrow {
     grid-template-columns: 1fr;
   }
 
-  .gfx-apps-intro {
-    min-height: 0;
-  }
-
+  .gfx-apps-intro,
   .gfx-apps-feature {
+    grid-column: auto;
     aspect-ratio: 16 / 9;
-    height: auto;
   }
 }
 
