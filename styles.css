@@ -1959,10 +1959,12 @@ a.service-more .service-more-arrow {
   line-height: 1.5;
 }
 
-/* Full-bleed media heroes — shared Ken Burns (home, web design, SEO, future) */
+/* Full-bleed media heroes — shared Ken Burns (web design, SEO, etc.) */
 .page-hero-media .hero-media img {
-  object-position: center center;
-  transform: scale3d(1.16, 1.16, 1);
+  /* Bias up so peaks / tops aren’t clipped under the header */
+  object-position: center 24%;
+  transform-origin: center 24%;
+  transform: scale3d(1.12, 1.12, 1);
   animation: heroKenBurns 12s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   will-change: transform;
   backface-visibility: hidden;
@@ -2031,7 +2033,7 @@ a.service-more .service-more-arrow {
 }
 
 .seo-page .page-hero-media .hero-media img {
-  object-position: center 12%;
+  object-position: center 18%;
   transform-origin: center 18%;
 }
 
@@ -2051,14 +2053,15 @@ a.service-more .service-more-arrow {
 }
 
 @media (max-width: 960px) {
-  /* Keep the phone in frame on tall viewports */
+  /* Keep subject in frame; bias up so tops aren’t clipped */
   .page-hero-media .hero-media img {
-    object-position: right center;
+    object-position: right 28%;
+    transform-origin: right 28%;
   }
 
   .seo-page .page-hero-media .hero-media img {
-    object-position: 92% 18%;
-    transform-origin: 90% 22%;
+    object-position: 92% 16%;
+    transform-origin: 90% 18%;
   }
 
   .page-hero-media::after {
@@ -2083,12 +2086,13 @@ a.service-more .service-more-arrow {
 
 @media (max-width: 720px) {
   .page-hero-media .hero-media img {
-    object-position: 100% 40%;
+    object-position: 100% 26%;
+    transform-origin: 100% 26%;
   }
 
   .seo-page .page-hero-media .hero-media img {
-    object-position: 100% 15%;
-    transform-origin: 95% 20%;
+    object-position: 100% 14%;
+    transform-origin: 95% 16%;
   }
 
   .page-hero-media::after {
@@ -2121,12 +2125,12 @@ a.service-more .service-more-arrow {
   height: 100%;
 }
 
-/* Figure sits right; feet near the bottom — anchor low so they stay in frame */
+/* Matterhorn sits mid-right — keep the peak in frame (don’t anchor to the floor) */
 .graphics-hero .hero-media img {
   object-fit: cover;
-  object-position: 75% 85%;
-  transform-origin: 75% 85%;
-  transform: scale3d(1.12, 1.12, 1);
+  object-position: 68% 42%;
+  transform-origin: 68% 42%;
+  transform: scale3d(1.1, 1.1, 1);
   animation: heroKenBurnsGraphics 12s cubic-bezier(0.22, 0.61, 0.36, 1) forwards;
   will-change: transform;
   backface-visibility: hidden;
@@ -2134,7 +2138,7 @@ a.service-more .service-more-arrow {
 
 @keyframes heroKenBurnsGraphics {
   from {
-    transform: scale3d(1.16, 1.16, 1);
+    transform: scale3d(1.1, 1.1, 1);
   }
   to {
     transform: scale3d(1, 1, 1);
@@ -2179,22 +2183,22 @@ a.service-more .service-more-arrow {
 
 @media (max-width: 960px) {
   .graphics-hero .hero-media img {
-    object-position: 80% 85%;
-    transform-origin: 80% 85%;
+    object-position: 72% 40%;
+    transform-origin: 72% 40%;
   }
 }
 
 @media (max-width: 720px) {
   .graphics-hero .hero-media img {
-    object-position: 84% 85%;
-    transform-origin: 84% 85%;
+    object-position: 74% 38%;
+    transform-origin: 74% 38%;
   }
 }
 
 @media (max-width: 960px) and (orientation: portrait) {
   .graphics-hero .hero-media img {
-    object-position: 88% 85%;
-    transform-origin: 88% 85%;
+    object-position: 76% 36%;
+    transform-origin: 76% 36%;
   }
 }
 
