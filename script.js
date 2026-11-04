@@ -392,6 +392,19 @@
     if (!btn || !panel) return;
     btn.setAttribute("aria-expanded", "false");
     panel.hidden = true;
+    tip.classList.remove("wd-pulse-tip--start", "wd-pulse-tip--end");
+  };
+
+  const placePulseTip = (tip, panel) => {
+    tip.classList.remove("wd-pulse-tip--start", "wd-pulse-tip--end");
+    // Measure centered placement, then flip if it would clip the viewport.
+    const rect = panel.getBoundingClientRect();
+    const pad = 16;
+    if (rect.left < pad) {
+      tip.classList.add("wd-pulse-tip--start");
+    } else if (rect.right > window.innerWidth - pad) {
+      tip.classList.add("wd-pulse-tip--end");
+    }
   };
 
   document.querySelectorAll(".wd-pulse-tip").forEach((tip) => {
@@ -405,8 +418,13 @@
       document.querySelectorAll(".wd-pulse-tip").forEach((other) => {
         if (other !== tip) closePulseTip(other);
       });
-      btn.setAttribute("aria-expanded", open ? "false" : "true");
-      panel.hidden = open;
+      if (open) {
+        closePulseTip(tip);
+        return;
+      }
+      btn.setAttribute("aria-expanded", "true");
+      panel.hidden = false;
+      placePulseTip(tip, panel);
     });
   });
 

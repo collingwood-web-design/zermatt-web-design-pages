@@ -3451,6 +3451,32 @@ a.service-more .service-more-arrow {
   text-align: left;
 }
 
+/* Left-edge tips (e.g. 5GCx): grow right so the panel isn't clipped */
+.wd-pulse-tip--start .wd-pulse-tip__panel {
+  left: 0;
+  right: auto;
+  transform: none;
+}
+
+.wd-pulse-tip--start .wd-pulse-tip__panel::after {
+  left: 1.05rem;
+  right: auto;
+  transform: none;
+}
+
+/* Right-edge tips: grow left */
+.wd-pulse-tip--end .wd-pulse-tip__panel {
+  left: auto;
+  right: 0;
+  transform: none;
+}
+
+.wd-pulse-tip--end .wd-pulse-tip__panel::after {
+  left: auto;
+  right: 1.05rem;
+  transform: none;
+}
+
 .wd-pulse-tip__panel::after {
   content: "";
   position: absolute;
