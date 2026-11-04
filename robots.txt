@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.collingwoodwebdesign.com/sitemap.xml
+Sitemap: https://www.zermattwebdesign.com/sitemap.xml
