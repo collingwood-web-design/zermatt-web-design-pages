@@ -4596,21 +4596,6 @@ a.service-more .service-more-arrow {
   object-position: 46% center;
 }
 
-.contact-map {
-  margin: 0;
-  overflow: hidden;
-  background: #d8d8d8;
-  line-height: 0;
-}
-
-.contact-map iframe {
-  display: block;
-  width: 100%;
-  height: clamp(14rem, 36vw, 22rem);
-  border: 0;
-  filter: grayscale(1);
-}
-
 .contact-security {
   background: var(--paper);
   border-top: 1px solid var(--line);
