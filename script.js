@@ -1,6 +1,15 @@
 (() => {
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  /* Remember language choice (default landing is German via index.html) */
+  document.querySelectorAll(".lang-switch a[hreflang]").forEach((link) => {
+    link.addEventListener("click", () => {
+      const lang = (link.getAttribute("hreflang") || "").slice(0, 2).toLowerCase();
+      if (!lang) return;
+      try { localStorage.setItem("zwd-lang", lang); } catch (e) { /* ignore */ }
+    });
+  });
+
   /* Mobile nav */
   const toggle = document.querySelector(".nav-toggle");
   const nav = document.querySelector(".site-nav");

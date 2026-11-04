@@ -9,7 +9,7 @@
   <link rel="alternate" hreflang="de" href="https://www.zermattwebdesign.com/de/">
   <link rel="alternate" hreflang="en" href="https://www.zermattwebdesign.com/">
   <link rel="alternate" hreflang="fr" href="https://www.zermattwebdesign.com/fr/">
-  <link rel="alternate" hreflang="x-default" href="https://www.zermattwebdesign.com/">
+  <link rel="alternate" hreflang="x-default" href="https://www.zermattwebdesign.com/de/">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="Zermatt Web Design">
   <meta property="og:locale" content="en_CA">
@@ -32,7 +32,14 @@
       if (location.protocol === "file:") return;
       if (/\.html$/i.test(location.pathname)) {
         location.replace(location.pathname.replace(/\.html$/i, "") + location.search + location.hash);
+        return;
       }
+      /* Default landing language: German (Swiss market). Honour EN/FR if chosen. */
+      var pref = null;
+      try { pref = localStorage.getItem("zwd-lang"); } catch (e) {}
+      if (pref === "en") return;
+      var target = pref === "fr" ? "fr/" : "de/";
+      location.replace(target + location.search + location.hash);
     })();
   </script>
   <script type="application/ld+json">
@@ -709,6 +716,6 @@
     </div>
   </footer>
 
-  <script src="script.js?v=20261104a"></script>
+  <script src="script.js?v=20261104c"></script>
 </body>
 </html>
